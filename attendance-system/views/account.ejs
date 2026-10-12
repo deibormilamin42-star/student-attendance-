@@ -1,0 +1,17 @@
+<%- include('partials/head') %>
+<main class="container narrow">
+  <div class="page-head"><h1>My account</h1></div>
+  <section class="card">
+    <p><strong><%= user.name %></strong> <span class="chip late"><%= user.role %></span></p>
+  </section>
+  <form class="card form" method="POST" action="/account/password">
+    <h2>Change password</h2>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% if (error) { %><div class="alert bad" role="alert"><%= error %></div><% } %>
+    <label>Current password<input type="password" name="current" autocomplete="current-password" required></label>
+    <label>New password<input type="password" name="password" minlength="8" autocomplete="new-password" required></label>
+    <label>Confirm new password<input type="password" name="confirm" minlength="8" autocomplete="new-password" required></label>
+    <div class="form-actions"><button class="btn" type="submit">Update password</button></div>
+  </form>
+</main>
+<%- include('partials/foot') %>

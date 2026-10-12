@@ -1,0 +1,21 @@
+<%- include('partials/head') %>
+<main class="container narrow">
+  <div class="page-head"><h1><%= isNew ? 'Add student' : 'Edit student' %></h1></div>
+  <form class="card form" method="POST" action="<%= isNew ? '/students' : '/students/' + student.id %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% if (error) { %><div class="alert bad" role="alert"><%= error %></div><% } %>
+    <label>Roll number<input name="roll_no" value="<%= student.roll_no %>" maxlength="20" required></label>
+    <label>Full name<input name="name" value="<%= student.name %>" maxlength="80" required></label>
+    <label>Class
+      <select name="class_id">
+        <option value="">No class</option>
+        <% classes.forEach(function (c) { %><option value="<%= c.id %>" <%= student.class_id === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %>
+      </select>
+    </label>
+    <div class="form-actions">
+      <button class="btn" type="submit"><%= isNew ? 'Add student' : 'Save changes' %></button>
+      <a class="btn ghost" href="/students">Cancel</a>
+    </div>
+  </form>
+</main>
+<%- include('partials/foot') %>

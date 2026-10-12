@@ -1,0 +1,20 @@
+<header class="nav">
+  <a class="brand" href="/dashboard">Attendly</a>
+  <div class="nav-right">
+    <button type="button" id="themeToggle" class="icon-btn" aria-label="Toggle light or dark theme"></button>
+    <a class="user-chip" href="/account" title="My account"><%= user.name %></a>
+    <form method="POST" action="/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn ghost sm" type="submit">Logout</button>
+    </form>
+    <button type="button" class="icon-btn nav-burger" id="navToggle" aria-label="Open menu" aria-expanded="false">&#9776;</button>
+  </div>
+  <nav class="nav-links" id="navLinks" aria-label="Main">
+    <a href="/dashboard" class="<%= active === 'dashboard' ? 'on' : '' %>">Dashboard</a>
+    <a href="/classes" class="<%= active === 'classes' ? 'on' : '' %>">Classes</a>
+    <a href="/students" class="<%= active === 'students' ? 'on' : '' %>">Students</a>
+    <a href="/attendance" class="<%= active === 'attendance' ? 'on' : '' %>">Attendance</a>
+    <a href="/reports" class="<%= active === 'reports' ? 'on' : '' %>">Reports</a>
+    <% if (user.role === 'admin') { %><a href="/users" class="<%= active === 'users' ? 'on' : '' %>">Users</a><% } %>
+  </nav>
+</header>

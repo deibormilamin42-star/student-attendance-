@@ -1,0 +1,61 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head">
+    <h1>Monthly view</h1>
+    <a class="btn ghost" href="/reports">Back to reports</a>
+  </div>
+
+  <form class="card filters" method="GET" action="/reports/monthly">
+    <label class="grow">Class
+      <select name="class_id" required>
+        <option value="">Select a class</option>
+        <% classes.forEach(function (c) { %><option value="<%= c.id %>" <%= cls && cls.id === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %>
+      </select>
+    </label>
+    <label>Month<input type="month" name="month" value="<%= month %>"></label>
+    <button class="btn" type="submit">Show</button>
+  </form>
+
+  <% if (!cls) { %>
+    <div class="card empty"><p class="muted">Choose a class and month to see the register.</p></div>
+  <% } else { %>
+    <section class="card">
+      <div class="month-nav">
+        <a class="btn ghost sm" href="/reports/monthly?class_id=<%= cls.id %>&month=<%= prev %>">&larr; <%= monthLabel(prev) %></a>
+        <h2><%= cls.name %> &middot; <%= monthLabel(month) %></h2>
+        <a class="btn ghost sm" href="/reports/monthly?class_id=<%= cls.id %>&month=<%= next %>"><%= monthLabel(next) %> &rarr;</a>
+      </div>
+      <% if (!students.length) { %>
+        <p class="muted">This class has no students.</p>
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <% days.forEach(function (d) { %><th class="<%= d.weekend ? 'we' : '' %>" title="<%= weekday(d.date) %>"><%= d.n %></th><% }) %>
+                <th>P</th><th>L</th><th>A</th><th>%</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% students.forEach(function (s) { %>
+                <tr>
+                  <td><a href="/students/<%= s.id %>"><%= s.roll_no %> &middot; <%= s.name %></a></td>
+                  <% s.cells.forEach(function (c, i) { %>
+                    <td class="cell <%= days[i].weekend ? 'we' : '' %> <%= c || '' %>"><%= c ? c.charAt(0).toUpperCase() : '' %></td>
+                  <% }) %>
+                  <td class="num"><%= s.present %></td>
+                  <td class="num"><%= s.late %></td>
+                  <td class="num"><%= s.absent %></td>
+                  <td class="num"><strong class="<%= pctClass(s.pct) %>-text"><%= s.pct == null ? '\u2013' : s.pct + '%' %></strong></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">P = present, A = absent, L = late. Shaded columns are weekends.</p>
+      <% } %>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/foot') %>

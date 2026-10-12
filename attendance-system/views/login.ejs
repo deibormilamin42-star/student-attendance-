@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<main class="auth">
+  <form class="card login" method="POST" action="/login">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button type="button" id="themeToggle" class="icon-btn" aria-label="Toggle light or dark theme"></button>
+    <div class="logo">&#10003;</div>
+    <h1>Welcome back</h1>
+    <p class="muted">Sign in to mark attendance</p>
+    <% if (error) { %><div class="alert bad" role="alert"><%= error %></div><% } %>
+    <label>Email<input type="email" name="email" autocomplete="username" required autofocus></label>
+    <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn lg" type="submit">Sign in</button>
+  </form>
+</main>
+<%- include('partials/foot') %>

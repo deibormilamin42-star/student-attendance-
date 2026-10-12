@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head">
+    <h1>Students</h1>
+    <% if (user.role === 'admin') { %><a class="btn" href="/students/new<%= classId ? '?class_id=' + classId : '' %>">Add student</a><% } %>
+  </div>
+
+  <form class="card filters" method="GET" action="/students">
+    <label class="grow">Search<input type="search" name="q" value="<%= q %>" placeholder="Name or roll number"></label>
+    <label>Class
+      <select name="class_id">
+        <option value="">All classes</option>
+        <% classes.forEach(function (c) { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %>
+      </select>
+    </label>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+
+  <section class="card">
+    <% if (!students.length) { %>
+      <p class="muted">No students found.</p>
+    <% } else { %>
+      <p class="muted small"><%= students.length %> student<%= students.length === 1 ? '' : 's' %></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Roll</th><th>Name</th><th>Class</th><th>Attendance</th><th class="actions">Actions</th></tr></thead>
+          <tbody>
+            <% students.forEach(function (s) { %>
+              <tr>
+                <td><%= s.roll_no %></td>
+                <td><a href="/students/<%= s.id %>"><strong><%= s.name %></strong></a></td>
+                <td><%= s.class_name || '\u2013' %></td>
+                <td>
+                  <% if (s.pct == null) { %><span class="muted">No records</span>
+                  <% } else { %><div class="pct"><div class="bar <%= pctClass(s.pct) %>"><span style="width:<%= s.pct %>%"></span></div><span class="small"><%= s.pct %>%</span></div><% } %>
+                </td>
+                <td class="actions">
+                  <% if (user.role === 'admin') { %>
+                    <a class="btn ghost sm" href="/students/<%= s.id %>/edit">Edit</a>
+                    <form class="inline" method="POST" action="/students/<%= s.id %>/delete" data-confirm="Delete this student and all of their attendance records?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn danger sm" type="submit">Delete</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/foot') %>

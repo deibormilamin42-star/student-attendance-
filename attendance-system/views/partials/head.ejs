@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <title><%= title %> | Attendly</title>
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<% if (user) { %><%- include('nav') %><% } %>
+<% if (flash) { %>
+  <div class="container flash-wrap"><div class="alert <%= flash.type %>" role="status"><%= flash.msg %></div></div>
+<% } %>

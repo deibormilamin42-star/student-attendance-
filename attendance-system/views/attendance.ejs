@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head"><h1>Mark attendance</h1></div>
+
+  <form class="card filters" method="GET" action="/attendance">
+    <label class="grow">Class
+      <select name="class_id" required>
+        <option value="">Select a class</option>
+        <% classes.forEach(function (c) { %><option value="<%= c.id %>" <%= cls && cls.id === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %>
+      </select>
+    </label>
+    <label>Date<input type="date" name="date" value="<%= date %>" max="<%= today %>"></label>
+    <button class="btn" type="submit">Load</button>
+  </form>
+
+  <% if (!classes.length) { %>
+    <div class="card empty"><p>There are no classes yet.</p><% if (user.role === 'admin') { %><a class="btn" href="/classes">Add a class</a><% } %></div>
+  <% } else if (!cls) { %>
+    <div class="card empty"><p class="muted">Choose a class and date, then press Load.</p></div>
+  <% } else if (!students.length) { %>
+    <div class="card empty">
+      <p><strong><%= cls.name %></strong> has no students yet.</p>
+      <% if (user.role === 'admin') { %><a class="btn" href="/students/new?class_id=<%= cls.id %>">Add students</a><% } %>
+    </div>
+  <% } else { %>
+    <form method="POST" action="/attendance" id="attForm">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="class_id" value="<%= cls.id %>">
+      <input type="hidden" name="date" value="<%= date %>">
+
+      <div class="card att-head">
+        <div>
+          <strong><%= cls.name %></strong>
+          <span class="muted"> &middot; <%= weekday(date) %>, <%= pretty(date) %></span>
+          <% if (marked) { %><span class="chip late">Already marked, editing</span><% } %>
+        </div>
+        <div class="att-tools">
+          <button type="button" class="btn ghost sm" data-mark-all="present">All present</button>
+          <button type="button" class="btn ghost sm" data-mark-all="absent">All absent</button>
+        </div>
+        <div class="counts" id="counts" aria-live="polite">
+          <span class="chip present">Present <b data-count="present">0</b></span>
+          <span class="chip absent">Absent <b data-count="absent">0</b></span>
+          <span class="chip late">Late <b data-count="late">0</b></span>
+        </div>
+      </div>
+
+      <ul class="att-list">
+        <% students.forEach(function (s) { var cur = s.status || 'present'; %>
+          <li class="att-row">
+            <div class="who"><span class="roll"><%= s.roll_no %></span><span class="nm"><%= s.name %></span></div>
+            <div class="seg" role="radiogroup" aria-label="Status for <%= s.name %>">
+              <% ['present', 'absent', 'late'].forEach(function (st) { var id = 's' + s.id + st; %>
+                <input type="radio" name="status_<%= s.id %>" id="<%= id %>" value="<%= st %>" <%= cur === st ? 'checked' : '' %>>
+                <label for="<%= id %>" class="<%= st %>" title="<%= st %>"><span class="sr"><%= st %></span><span aria-hidden="true"><%= st.charAt(0).toUpperCase() %></span></label>
+              <% }) %>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+
+      <div class="sticky-save"><button class="btn lg" type="submit">Save attendance</button></div>
+    </form>
+  <% } %>
+</main>
+<%- include('partials/foot') %>

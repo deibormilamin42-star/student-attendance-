@@ -1,0 +1,62 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head">
+    <h1>Reports</h1>
+    <div class="row-gap">
+      <a class="btn ghost" href="/reports/monthly<%= f.classId ? '?class_id=' + f.classId : '' %>">Monthly view</a>
+      <a class="btn" href="/reports/export.csv?<%= exportQuery %>">Export CSV</a>
+    </div>
+  </div>
+
+  <form class="card filters" method="GET" action="/reports">
+    <label class="grow">Class
+      <select name="class_id">
+        <option value="">All classes</option>
+        <% classes.forEach(function (c) { %><option value="<%= c.id %>" <%= f.classId === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %>
+      </select>
+    </label>
+    <label>From<input type="date" name="from" value="<%= f.from %>" max="<%= today %>"></label>
+    <label>To<input type="date" name="to" value="<%= f.to %>" max="<%= today %>"></label>
+    <button class="btn" type="submit">Apply</button>
+  </form>
+
+  <section class="grid stats">
+    <div class="card stat"><span class="muted">Students</span><strong><%= rows.length %></strong></div>
+    <div class="card stat <%= pctClass(avg) %>"><span class="muted">Average attendance</span><strong><%= avg == null ? '\u2013' : avg + '%' %></strong></div>
+    <div class="card stat bad"><span class="muted">Below <%= LOW %>%</span><strong><%= lowCount %></strong></div>
+  </section>
+
+  <section class="card">
+    <h2><%= pretty(f.from) %> to <%= pretty(f.to) %></h2>
+    <% if (!rows.length) { %>
+      <p class="muted">No students match these filters.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Roll</th><th>Name</th><th>Class</th><th class="num">P</th><th class="num">L</th><th class="num">A</th><th class="num">Days</th><th>Attendance</th></tr>
+          </thead>
+          <tbody>
+            <% rows.forEach(function (r) { %>
+              <tr>
+                <td><%= r.roll_no %></td>
+                <td><a href="/students/<%= r.id %>"><strong><%= r.name %></strong></a></td>
+                <td><%= r.class_name || '\u2013' %></td>
+                <td class="num"><%= r.present %></td>
+                <td class="num"><%= r.late %></td>
+                <td class="num"><%= r.absent %></td>
+                <td class="num"><%= r.total %></td>
+                <td>
+                  <% if (r.pct == null) { %><span class="muted">No records</span>
+                  <% } else { %><div class="pct"><div class="bar <%= pctClass(r.pct) %>"><span style="width:<%= r.pct %>%"></span></div><span class="small"><%= r.pct %>%</span></div><% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">P = present, L = late, A = absent. Late counts as attended in the percentage.</p>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/foot') %>

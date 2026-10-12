@@ -1,0 +1,50 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head"><h1>Classes</h1></div>
+
+  <% if (user.role === 'admin') { %>
+  <form class="card filters" method="POST" action="/classes">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="grow">New class name<input name="name" maxlength="60" placeholder="e.g. BCA Semester 5" required></label>
+    <button class="btn" type="submit">Add class</button>
+  </form>
+  <% } %>
+
+  <section class="card">
+    <% if (!classes.length) { %>
+      <p class="muted">No classes yet.<%= user.role === 'admin' ? ' Add one above.' : ' Ask an administrator to add one.' %></p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Class</th><th class="num">Students</th><th class="actions">Actions</th></tr></thead>
+          <tbody>
+            <% classes.forEach(function (c) { %>
+              <tr>
+                <td>
+                  <% if (user.role === 'admin') { %>
+                    <form class="inline" method="POST" action="/classes/<%= c.id %>/rename">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input name="name" value="<%= c.name %>" maxlength="60" required aria-label="Class name">
+                      <button class="btn ghost sm" type="submit">Rename</button>
+                    </form>
+                  <% } else { %><strong><%= c.name %></strong><% } %>
+                </td>
+                <td class="num"><a href="/students?class_id=<%= c.id %>"><%= c.students %></a></td>
+                <td class="actions">
+                  <a class="btn ghost sm" href="/attendance?class_id=<%= c.id %>">Mark</a>
+                  <% if (user.role === 'admin') { %>
+                    <form class="inline" method="POST" action="/classes/<%= c.id %>/delete" data-confirm="Delete this class? Its students are kept but unassigned.">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn danger sm" type="submit">Delete</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/foot') %>

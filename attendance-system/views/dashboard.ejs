@@ -1,0 +1,82 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-head">
+    <div>
+      <h1>Hello, <%= user.name %></h1>
+      <p class="muted"><%= weekday(today, 'long') %>, <%= pretty(today) %></p>
+    </div>
+    <a class="btn" href="/attendance">Mark attendance</a>
+  </div>
+
+  <section class="grid stats">
+    <div class="card stat"><span class="muted">Students</span><strong><%= totals.students %></strong></div>
+    <div class="card stat"><span class="muted">Classes</span><strong><%= totals.classes %></strong></div>
+    <div class="card stat ok"><span class="muted">Present today</span><strong><%= stats.present %></strong></div>
+    <div class="card stat bad"><span class="muted">Absent today</span><strong><%= stats.absent %></strong></div>
+    <div class="card stat warn"><span class="muted">Late today</span><strong><%= stats.late %></strong></div>
+    <div class="card stat"><span class="muted">Overall attendance</span><strong><%= totals.pct == null ? '\u2013' : totals.pct + '%' %></strong></div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <h2>Last 7 days</h2>
+      <p class="muted small">Attendance % per day (late counts as attended)</p>
+      <div class="chart" role="img" aria-label="Attendance percentage for the last seven days">
+        <% days.forEach(function (d) { %>
+          <div class="col">
+            <span class="val"><%= d.pct == null ? '' : Math.round(d.pct) %></span>
+            <div class="barv"><i style="height:<%= d.pct == null ? 0 : d.pct %>%"></i></div>
+            <span class="lbl"><%= d.label %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Needs attention</h2>
+      <p class="muted small">Students below <%= LOW %>% attendance</p>
+      <% if (!low.length) { %>
+        <p class="muted">Nobody is below the threshold. Great!</p>
+      <% } else { %>
+        <ul class="list">
+          <% low.forEach(function (s) { %>
+            <li>
+              <a href="/students/<%= s.id %>"><strong><%= s.name %></strong></a>
+              <span class="muted small"><%= s.roll_no %><%= s.class_name ? ' \u00b7 ' + s.class_name : '' %></span>
+              <span class="chip absent"><%= s.pct %>%</span>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Today by class</h2>
+    <% if (!byClass.length) { %>
+      <p class="muted">No classes yet. <a href="/classes">Add your first class</a>.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Class</th><th class="num">Students</th><th class="num">Present</th><th class="num">Late</th><th class="num">Absent</th><th>Status</th></tr></thead>
+          <tbody>
+            <% byClass.forEach(function (c) { %>
+              <tr>
+                <td><strong><%= c.name %></strong></td>
+                <td class="num"><%= c.students %></td>
+                <td class="num"><%= c.present %></td>
+                <td class="num"><%= c.late %></td>
+                <td class="num"><%= c.absent %></td>
+                <td>
+                  <% if (c.marked) { %><span class="chip present">Marked</span>
+                  <% } else { %><a class="chip late" href="/attendance?class_id=<%= c.id %>">Not marked yet</a><% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/foot') %>
